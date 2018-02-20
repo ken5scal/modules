@@ -212,7 +212,7 @@ resource "aws_iam_policy" "cloudwatch_read_only" {
   policy = "${data.aws_iam_policy_document.cloudwatch_read_only.json}"
 }
 
-resource "aws_iam_user_policy_attachment" "neo_cloudwatch_full_access" {
+resource "aws_iam_user_policy_attachment" "neo_cloudwatch_read_only" {
   count = "${var.give_neo_cloudwatch_full-access}"
   policy_arn = "${aws_iam_policy.cloudwatch_full_access.arn}"
   user = "${aws_iam_user.example.0.name}"
