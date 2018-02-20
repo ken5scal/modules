@@ -127,7 +127,8 @@ resource "aws_security_group_rule" "allow_all_outbound" {
 }
 
 resource "aws_autoscaling_schedule" "scale_out_during_business_hours" {
-  count = "${var.enable_autoscaling}" // if set to 0 / false, then the resource is not created at all.
+  count = "${var.enable_autoscaling}"
+  // if set to 0 / false, then the resource is not created at all.
 
   scheduled_action_name = "scale-out-during-business-hours"
   min_size = 2
@@ -138,7 +139,8 @@ resource "aws_autoscaling_schedule" "scale_out_during_business_hours" {
 }
 
 resource "aws_autoscaling_schedule" "scale_in_at_night" {
-  count = "${var.enable_autoscaling}" // if set to 0 / false, then the resource is not created at all.
+  count = "${var.enable_autoscaling}"
+  // if set to 0 / false, then the resource is not created at all.
 
   scheduled_action_name = "scale-in-at-night"
   min_size = 2
@@ -146,4 +148,41 @@ resource "aws_autoscaling_schedule" "scale_in_at_night" {
   desired_capacity = 2
   recurrence = "0 17 * * *"
   autoscaling_group_name = "${aws_autoscaling_group.ex-asg.name}"
+}
+
+resource "aws_cloudwatch_metric_alarm" "high_cpu_utilization" {
+  alarm_name = "${var.cluster_name}-high-cpu-utilization"
+  namespace = "AWS/EC2"
+  metric_name = "CPUUtilization"
+
+  dimensions {
+    AutoScalingGroupName = "${aws_autoscaling_group.ex-asg.name}"
+  }
+
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods = 1
+  period = 300
+  statistic = "Average"
+  threshold = 90
+  unit = "Percent"
+}
+
+resource "aws_cloudwatch_metric_alarm" "low_cpu_utilization" {
+  count = "${format("%.1s", var.instance_type) == "t" ? 1:0}"
+
+  alarm_name = "${var.cluster_name}-low-cpu-utilization"
+  namespace = "AWS/EC2"
+  metric_name = "CPUCreditBalance"
+  // Only apply to tXXXX instances (e.g., t2micro)
+
+  dimensions {
+    AutoScalingGroupName = "${aws_autoscaling_group.ex-asg.name}"
+  }
+
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods = 1
+  period = 300
+  statistic = "Minimum"
+  threshold = 10
+  unit = "Count"
 }
