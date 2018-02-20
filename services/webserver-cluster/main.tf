@@ -13,7 +13,10 @@ resource "aws_launch_configuration" "ex-launch-config" {
   #   echo "${data.terraform_remote_state.db.port}" >> index.html
   #   nohup busybox httpd -f -p "${var.server_port}" &
   #   EOF
-  user_data = "${data.template_file.user_data.rendered}"
+  user_data = "${element(
+    concat(data.template_file.user_data.*.rendered,
+    data.template_file.user_data_new.*.rendered),
+    0)}"
 
   # meta-parameter
   lifecycle {
@@ -199,7 +202,8 @@ data "aws_iam_policy_document" "cloudwatch_read_only" {
       "cloudwatch:Describe*",
       "cloudwatch:Get*",
       "cloudwatch:List*"]
-    resources = ["*"]
+    resources = [
+      "*"]
   }
 }
 
@@ -217,8 +221,10 @@ resource "aws_iam_user_policy_attachment" "neo_cloudwatch_full_access" {
 data "aws_iam_policy_document" "cloudwatch_full_access" {
   "statement" {
     effect = "Allow"
-    actions = ["cloudwatch:*"]
-    resources = ["*"]
+    actions = [
+      "cloudwatch:*"]
+    resources = [
+      "*"]
   }
 }
 
@@ -228,7 +234,8 @@ resource "aws_iam_policy" "cloudwatch_full_access" {
 }
 
 resource "aws_iam_user_policy_attachment" "neo_cloudwatch_full_access" {
-  count = "${1 - var.give_neo_cloudwatch_full-access}" //if-else statement
+  count = "${1 - var.give_neo_cloudwatch_full-access}"
+  //if-else statement
   policy_arn = "${aws_iam_policy.cloudwatch_full_access.arn}"
   user = "${aws_iam_user.example.0.name}"
 }

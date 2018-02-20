@@ -47,5 +47,12 @@ variable "give_neo_cloudwatch_full-access" {
 
 variable "user_names" {
   type = "list"
-  default = ["neo", "trinity", "morpheus"]
+  default = [
+    "neo",
+    "trinity",
+    "morpheus"]
+}
+
+variable "enable_new_user_data" {
+  description = "If set to true, use the new User Data script"
 }
