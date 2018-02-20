@@ -9,3 +9,12 @@ output "asg_name" {
 output "elb_security_group_id" {
   value = "${aws_security_group.sg-elb.id}"
 }
+
+output "neo_arn" {
+  value = "${aws_iam_user.exmaple.0.arn}"
+}
+
+output "all_arns" {
+  value = [
+    "${aws_iam_user.exmaple.*.arn}"]
+}

@@ -40,3 +40,12 @@ variable "db_remote_state_key" {
 variable "enable_autoscaling" {
   description = "If set to true, enable auto scaling"
 }
+
+variable "give_neo_cloudwatch_full-access" {
+  description = "If true, neo gets full acess to CloudWatch"
+}
+
+variable "user_names" {
+  type = "list"
+  default = ["neo", "trinity", "morpheus"]
+}
